@@ -1,19 +1,17 @@
-## Graphene Custom Mutation with validation
+import graphene
+from django.core.exceptions import ValidationError
 
-Custom Graphene Mutation that calls defined validation methods before performing mutate.
+from examples.models import Location
+from examples.schema import LocationNode
+from graphene_validation.mutations import MutationWithValidators
 
-Custom Validator name have to starts with **'validate\_'**, 
-if validation fails method have to raise Validation Error with proper message.
 
-## Example
-
-```python
 class CreateLocationInput(graphene.InputObjectType):
     name = graphene.String()
     country = graphene.String()
 
 
-class CreateLocation(MutationWithValidators):
+class CreateLocation1(MutationWithValidators):
     location = graphene.Field(LocationNode)
 
     class Arguments:
@@ -32,36 +30,9 @@ class CreateLocation(MutationWithValidators):
     def perform_mutate(cls, root, info, location_data):
         location = Location.objects.create(**location_data)
 
-        return CreateLocation(location)
-```
+        return CreateLocation1(location)
 
-If we try to send location name in lowercase, response will look like this:
 
-```json
-{
-  "errors": [
-    {
-      "message": "Location name have to starts with capital letters.",
-      "locations": [
-        {
-          "line": 2,
-          "column": 3
-        }
-      ],
-      "path": [
-        "createLocation"
-      ]
-    }
-  ],
-  "data": {
-    "createLocation": null
-  }
-}
-```
-
-Or validators can be defined in separate class:
-
-```python
 class LocationValidators:
     @classmethod
     def validate_name(cls, info, **kwargs):
@@ -73,13 +44,30 @@ class LocationValidators:
             )
 
 
-class CreateLocation(LocationValidators, MutationWithValidators):
+class CreateLocation2(LocationValidators, MutationWithValidators):
     location = graphene.Field(LocationNode)
 
-    # to exclude some validators just pass them to excluded_validators
+    class Arguments:
+        location_data = CreateLocationInput(required=True)
+
+    @classmethod
+    def perform_mutate(cls, root, info, location_data):
+        location = Location.objects.create(**location_data)
+
+        return CreateLocation1(location)
+
+
+class CreateLocation3(LocationValidators, MutationWithValidators):
+    location = graphene.Field(LocationNode)
+
     class Meta:
         excluded_validators = ('validate_name', )
-```
 
-## Work in progress
-need to add tests, better error handling and much more...
+    class Arguments:
+        location_data = CreateLocationInput(required=True)
+
+    @classmethod
+    def perform_mutate(cls, root, info, location_data):
+        location = Location.objects.create(**location_data)
+
+        return CreateLocation1(location)
