@@ -5,6 +5,7 @@ from graphene import Interface, Field, ObjectType
 from graphene.types.mutation import MutationOptions
 from graphene.types.utils import yank_fields_from_attrs
 from graphene.utils.props import props
+from graphql import GraphQLError
 
 
 class MutationWithValidatorsOptions(MutationOptions):
