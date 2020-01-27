@@ -4,15 +4,15 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="graphene-mutation-with-validation-WojtekNosal",
+    name="graphene-validation",
     version="0.0.1",
     author="Wojciech Nosal",
     author_email="wnosal@outlook.com",
     description="Graphene Custom Mutation with validation",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/WojtekNosal/graphene-mutation-with-validation",
-    packages=setuptools.find_packages(),
+    url="https://github.com/WojtekNosal/graphene-validation",
+    packages=setuptools.find_packages(exclude=["tests", "tests.*", "examples"]),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
